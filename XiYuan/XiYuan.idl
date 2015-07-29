@@ -1,0 +1,46 @@
+// XiYuan.idl : XiYuan.exe 的类型库源
+
+// 此文件将由 MIDL 编译器处理以产生
+// 类型库(XiYuan.tlb)。
+
+#include "olectl.h"
+[uuid(C3AA3981-94C9-43A3-9363-5FFCF4EC1FAC), version(1.0)]
+library XiYuan
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	//  CXiYuanDoc 的主调度接口
+	
+	[ uuid(10A5A587-D169-48EB-AE84-A7762B0C3CDA) ]
+	dispinterface IXiYuan
+	{
+		properties:
+			
+		methods:
+	};
+
+	//  CXiYuanDoc 的类信息
+	
+	[ uuid(0AAF2B95-7B08-4734-A2A1-6499D3D1AF54) ]
+	coclass CXiYuanDoc
+	{
+		[default] dispinterface IXiYuan;
+	};
+	//  VodCtrl 的主调度接口
+		
+	[ uuid(5277186D-01B5-4226-880A-169C24433906) ]
+	dispinterface IVodCtrl
+	{
+		properties:
+		methods:
+	};
+
+	//  VodCtrl 的类信息
+
+	[ uuid(8092C88C-973F-4E6C-AF31-6253168B8AA5) ]
+	coclass VodCtrl
+	{
+		[default] dispinterface IVodCtrl;
+	};
+};
