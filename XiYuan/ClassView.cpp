@@ -15,6 +15,7 @@
 #include "Resource.h"
 #include "XiYuan.h"
 
+
 class CClassViewMenuButton : public CMFCToolBarMenuButton
 {
 	friend class CClassView;
