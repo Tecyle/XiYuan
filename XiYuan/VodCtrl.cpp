@@ -18,7 +18,7 @@ CVodCtrl::CVodCtrl()
 	EnableAutomation();
 	userName = L"tecyle";
 	passWord = L"17090115";
-	cacheDirectory = L"F:\\Movies";
+	cacheDirectory = L"E:\\Movies";
 }
 
 CVodCtrl::~CVodCtrl()
