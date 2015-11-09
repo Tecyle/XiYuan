@@ -18,7 +18,6 @@ CVodCtrl::CVodCtrl()
 	EnableAutomation();
 	userName = L"tecyle";
 	passWord = L"17090115";
-	cacheDirectory = L"F:\\Movies";
 }
 
 CVodCtrl::~CVodCtrl()
@@ -254,94 +253,69 @@ BOOL CVodCtrl::LoginMovieSite(string & strBuffer, CHttpConnection * pHttp)
 	return TRUE;
 }
 
-BOOL CVodCtrl::CreateMovieDirectory(CString fileName)
-{
-	// 仅支持绝对路径
-	if (fileName.Find(L':') == -1)
-		return FALSE;
-	int iStart = 0;
-	while ((iStart = fileName.Find(L'\\', iStart)) != -1)
-	{
-		iStart++;
-		CString str = fileName.Left(iStart);
-		if (!PathFileExists(str))
-		{
-			if (!CreateDirectory(str, NULL))
-				return FALSE;
-		}
-	}
-	return TRUE;
-}
-
-UINT DownloadMovieThread(LPVOID lpParams)
-{
-	DWORD tId = GetCurrentThreadId();
-	CVodCtrl * pVodCtrl = (CVodCtrl *)lpParams;
-	CString url = pVodCtrl->downloadTaskList[tId].url;
-	CString downPath = url;
-	// 获取保存位置
-	downPath.Replace(L"http://", L"");
-	downPath = downPath.Right(downPath.GetLength() - downPath.Find(L'/'));
-	downPath.Replace(L"/", L"\\");
-	downPath = pVodCtrl->cacheDirectory + downPath;
-	pVodCtrl->CreateMovieDirectory(downPath);
-	pVodCtrl->downloadTaskList[tId].flagPlayed = FALSE;
-	pVodCtrl->downloadTaskList[tId].localName = downPath;
-	pVodCtrl->downloadTaskList[tId].pVodCtrl = pVodCtrl;
-	// 判断该视频文件是否曾经缓存过
-	if (PathFileExists(downPath))
-	{
-		// 已经缓存过就直接播放就好了
-		pVodCtrl->OnDownloadCompleted(tId);
-		return 0;
-	}
-	// 开始下载
-	((CMainFrame *)AfxGetMainWnd())->PostMessage(WM_MOVIE_DOWNLOAD_START);
-	HRESULT hr = URLDownloadToFile(NULL, url, downPath, 0, &pVodCtrl->downloadTaskList[tId]);
-	((CMainFrame *)AfxGetMainWnd())->PostMessage(WM_MOVIE_DOWNLOAD_END);
-	if (FAILED(hr))
-	{
-		pVodCtrl->OnDownloadError(tId, hr);
-		return hr;
-	}
-	else{
-		pVodCtrl->OnDownloadCompleted(tId);
-	}
-	return 0;
-}
+// UINT DownloadMovieThread(LPVOID lpParams)
+// {
+// 	DWORD tId = GetCurrentThreadId();
+// 	CVodCtrl * pVodCtrl = (CVodCtrl *)lpParams;
+// 	CString url = pVodCtrl->downloadTaskList[tId].url;
+// 	CString downPath = url;
+// 	// 获取保存位置
+// 	downPath.Replace(L"http://", L"");
+// 	downPath = downPath.Right(downPath.GetLength() - downPath.Find(L'/'));
+// 	downPath.Replace(L"/", L"\\");
+// 	downPath = pVodCtrl->cacheDirectory + downPath;
+// 	pVodCtrl->CreateMovieDirectory(downPath);
+// 	pVodCtrl->downloadTaskList[tId].flagPlayed = FALSE;
+// 	pVodCtrl->downloadTaskList[tId].localName = downPath;
+// 	pVodCtrl->downloadTaskList[tId].pVodCtrl = pVodCtrl;
+// 	// 判断该视频文件是否曾经缓存过
+// 	if (PathFileExists(downPath))
+// 	{
+// 		// 已经缓存过就直接播放就好了
+// 		pVodCtrl->OnDownloadCompleted(tId);
+// 		return 0;
+// 	}
+// 	// 开始下载
+// 	((CMainFrame *)AfxGetMainWnd())->PostMessage(WM_MOVIE_DOWNLOAD_START);
+// 	HRESULT hr = URLDownloadToFile(NULL, url, downPath, 0, &pVodCtrl->downloadTaskList[tId]);
+// 	((CMainFrame *)AfxGetMainWnd())->PostMessage(WM_MOVIE_DOWNLOAD_END);
+// 	if (FAILED(hr))
+// 	{
+// 		pVodCtrl->OnDownloadError(tId, hr);
+// 		return hr;
+// 	}
+// 	else{
+// 		pVodCtrl->OnDownloadCompleted(tId);
+// 	}
+// 	return 0;
+// }
 
 HRESULT CVodCtrl::DownloadMovie(CString url)
 {
-	// 开启下载线程
-	CDownloadProgressCtrl progressCtrl;
-	progressCtrl.url = url;
-	CWinThread * hThread = AfxBeginThread(DownloadMovieThread, this, 0, 0U, CREATE_SUSPENDED);
-	progressCtrl.threadId = hThread->m_nThreadID;
-	downloadTaskList[hThread->m_nThreadID] = progressCtrl;
-	hThread->ResumeThread();
+	theDownloadManager.AddDownloadTask(url);
 	return S_OK;
 }
 
-void CVodCtrl::OnDownloadError(DWORD tId, HRESULT hr)
-{
-	throw std::logic_error("The method or operation is not implemented.");
-}
-
-void CVodCtrl::OnDownloadCompleted(DWORD tId)
-{
-	// 获取播放指令并播放
-	CString sName = L"\"" + downloadTaskList[tId].localName + L"\"";
-	ShellExecute(NULL, L"Open", sName, NULL, NULL, SW_SHOW);
-	// 移除线程内容
-	downloadTaskList.erase(tId);
-}
-
-void CVodCtrl::OnReadyToPlay(DWORD threadId, CString localName)
-{
-	// 获取播放指令并播放
-	// ShellExecute(NULL, L"open", localName, NULL, NULL, SW_SHOW);
-	DWORD errcode = GetLastError();
-}
+// void CVodCtrl::OnDownloadError(DWORD tId, HRESULT hr)
+// {
+// 	throw std::logic_error("The method or operation is not implemented.");
+// }
+// 
+// void CVodCtrl::OnDownloadCompleted(DWORD tId)
+// {
+// 	// 获取播放指令并播放
+// 	CString sName = L"\"" + downloadTaskList[tId].localName + L"\"";
+// 	ShellExecute(NULL, L"Open", sName, NULL, NULL, SW_SHOW);
+// 	// 移除线程内容
+// 	downloadTaskList.erase(tId);
+// }
+// 
+// void CVodCtrl::OnReadyToPlay(DWORD threadId, CString localName)
+// {
+// 	// 获取播放指令并播放
+// 	// ShellExecute(NULL, L"open", localName, NULL, NULL, SW_SHOW);
+// 	DWORD errcode = GetLastError();
+// }
 
 CString CVodCtrl::GetMediaPlayerLocation()
 {
@@ -369,88 +343,151 @@ void CVodCtrl::VodDown2Play(BSTR urlid)
 
 void CVodCtrl::VodDownloadAll(BSTR movieId)
 {
-	theToast.ShowToast(L"下载过程马上就要开始啦~", 2000);
-	theToast.ShowToast(L"此去经年，待到俗世纷扰如烟飘散，只留得故人孑影，怅对一湖天光。西风渐冷，又是谁，把流年暗中偷换。容颜未改,青衫如故。碧湖波光流动,瞬间折射出盈盈浅笑中的情思百转，如缠绕三生的因缘。");
+	 vector<CString> movieList = FetchAllMovieURLByMovieId(movieId);
+	 CString toastMsg;
+	 toastMsg.Format(L"惜缘帮主人找到了%d个电影资源哦~正在一个一个很努力地下载下来~\r\n~O(∩_∩)O~", movieList.size());
+	 theToast.ShowToast(toastMsg, 10000);
+	 for (size_t i = 0; i < movieList.size(); i++)
+	 {
+		 DownloadMovie(movieList[i]);
+	 }
+}
+
+vector<CString> CVodCtrl::FetchAllMovieURLByMovieId(CString movieId)
+{
+	vector<CString> result;
+	// 打开影片位置
+	CString movieUrl = L"/index.php?mod=content&action=frameurl&movid=" + movieId;
+	string responseHtml = GetHTMLByUrl(movieUrl);
+	// 搜索其中的所有符合条件的链接
+	int pos = 0;
+	while ((pos = responseHtml.find("/index.php?mod=content&action=play&urlid=", pos)) != string::npos)
+	{
+		// 沿串位置搜索反斜杠
+		int endPos = pos + strlen("/index.php?mod=content&action=play&urlid=");
+		while (responseHtml[endPos] != '\\' && responseHtml[endPos] != '\'')
+			endPos++;
+		CString contentUrl = L"http://vod.cau.edu.cn" + AnsiToUnicode(responseHtml.substr(pos, endPos - pos));
+		CString movieUrl = AnsiToUnicode(FetchMovieURL(contentUrl));
+		if (movieUrl.GetLength())
+			result.push_back(movieUrl);
+		pos++;
+	}
+	return result;
+}
+
+string CVodCtrl::GetHTMLByUrl(CString url)
+{
+	CHttpConnection * pHttp;
+	CHttpFile * pFile;
+	string res;
+	pHttp = session.GetHttpConnection(L"vod.cau.edu.cn");
+	pFile = pHttp->OpenRequest(CHttpConnection::HTTP_VERB_GET, url);
+	pFile->AddRequestHeaders(L"Accept: image/gif, image/x-xbitmap, image/jpeg, image/pjpeg, application/vnd.ms-powerpoint, application/vnd.ms-excel, application/msword, */*");
+	pFile->AddRequestHeaders(L"User-Agent: Mozilla/4.0 (compatible; MSIE 5.01; Windows NT 5.0)");
+	pFile->AddRequestHeaders(L"Content-Type: application/x-www-form-urlencoded");
+	pFile->SendRequest();
+	// 判断请求是否成功
+	DWORD respCode = 0;
+	pFile->QueryInfoStatusCode(respCode);
+	if (respCode < 200 || respCode > 299)
+	{
+		pFile->Close();
+		pHttp->Close();
+		return res;
+	}
+	// 解析请求内容
+	BYTE buffer[1024];
+	UINT len = 0;
+	res.clear();
+	while (len = pFile->Read(buffer, 1023))
+	{
+		buffer[len] = 0;
+		res += (char *)buffer;
+	}
+	pFile->Close();
+	pHttp->Close();
+	return res;
 }
 
 
 // CVodCtrl 消息处理程序
 
-HRESULT STDMETHODCALLTYPE CDownloadProgressCtrl::OnStartBinding(DWORD dwReserved, __RPC__in_opt IBinding *pib)
-{
-	UNREFERENCED_PARAMETER(dwReserved);
-	UNREFERENCED_PARAMETER(pib);
-	return E_NOTIMPL;
-}
-
-HRESULT STDMETHODCALLTYPE CDownloadProgressCtrl::GetPriority(__RPC__out LONG *pnPriority)
-{
-	UNREFERENCED_PARAMETER(pnPriority);
-	return E_NOTIMPL;
-}
-
-HRESULT STDMETHODCALLTYPE CDownloadProgressCtrl::OnLowResource(DWORD reserved)
-{
-	UNREFERENCED_PARAMETER(reserved);
-	return E_NOTIMPL;
-}
-
-HRESULT STDMETHODCALLTYPE CDownloadProgressCtrl::OnProgress(ULONG ulProgress, ULONG ulProgressMax, ULONG ulStatusCode, __RPC__in_opt LPCWSTR szStatusText)
-{
-	if (ulProgressMax == 0)
-		return S_OK;
-	// 当下载进度达到20%的时候可以播放了
-	if (lastProgress != (int)((double)ulProgress * 100.0 / (double)ulProgressMax))
-	{
-		lastProgress = (int)((double)ulProgress * 100.0 / (double)ulProgressMax);
-		((CMainFrame *)AfxGetMainWnd())->PostMessage(WM_MOVIE_DOWNLOAD_PROGRESS, threadId, lastProgress);
-	}
-	return S_OK;
-}
-
-HRESULT STDMETHODCALLTYPE CDownloadProgressCtrl::OnStopBinding(HRESULT hresult, __RPC__in_opt LPCWSTR szError)
-{
-	UNREFERENCED_PARAMETER(hresult);
-	UNREFERENCED_PARAMETER(szError);
-	return E_NOTIMPL;
-}
-
-HRESULT STDMETHODCALLTYPE CDownloadProgressCtrl::GetBindInfo(DWORD *grfBINDF, BINDINFO *pbindinfo)
-{
-	UNREFERENCED_PARAMETER(grfBINDF);
-	UNREFERENCED_PARAMETER(pbindinfo);
-	return E_NOTIMPL;
-}
-
-HRESULT STDMETHODCALLTYPE CDownloadProgressCtrl::OnDataAvailable(DWORD grfBSCF, DWORD dwSize, FORMATETC *pformatetc, STGMEDIUM *pstgmed)
-{
-	UNREFERENCED_PARAMETER(grfBSCF);
-	UNREFERENCED_PARAMETER(dwSize);
-	UNREFERENCED_PARAMETER(pformatetc);
-	UNREFERENCED_PARAMETER(pstgmed);
-	return E_NOTIMPL;
-}
-
-HRESULT STDMETHODCALLTYPE CDownloadProgressCtrl::OnObjectAvailable(__RPC__in REFIID riid, __RPC__in_opt IUnknown *punk)
-{
-	UNREFERENCED_PARAMETER(riid);
-	UNREFERENCED_PARAMETER(punk);
-	return E_NOTIMPL;
-}
-
-HRESULT STDMETHODCALLTYPE CDownloadProgressCtrl::QueryInterface(REFIID riid, void **ppvObject)
-{
-	UNREFERENCED_PARAMETER(riid);
-	UNREFERENCED_PARAMETER(ppvObject);
-	return E_NOTIMPL;
-}
-
-ULONG STDMETHODCALLTYPE CDownloadProgressCtrl::AddRef(void)
-{
-	return 0;
-}
-
-ULONG STDMETHODCALLTYPE CDownloadProgressCtrl::Release(void)
-{
-	return 0;
-}
+// HRESULT STDMETHODCALLTYPE CDownloadProgressCtrl::OnStartBinding(DWORD dwReserved, __RPC__in_opt IBinding *pib)
+// {
+// 	UNREFERENCED_PARAMETER(dwReserved);
+// 	UNREFERENCED_PARAMETER(pib);
+// 	return E_NOTIMPL;
+// }
+// 
+// HRESULT STDMETHODCALLTYPE CDownloadProgressCtrl::GetPriority(__RPC__out LONG *pnPriority)
+// {
+// 	UNREFERENCED_PARAMETER(pnPriority);
+// 	return E_NOTIMPL;
+// }
+// 
+// HRESULT STDMETHODCALLTYPE CDownloadProgressCtrl::OnLowResource(DWORD reserved)
+// {
+// 	UNREFERENCED_PARAMETER(reserved);
+// 	return E_NOTIMPL;
+// }
+// 
+// HRESULT STDMETHODCALLTYPE CDownloadProgressCtrl::OnProgress(ULONG ulProgress, ULONG ulProgressMax, ULONG ulStatusCode, __RPC__in_opt LPCWSTR szStatusText)
+// {
+// 	if (ulProgressMax == 0)
+// 		return S_OK;
+// 	// 当下载进度达到20%的时候可以播放了
+// 	if (lastProgress != (int)((double)ulProgress * 100.0 / (double)ulProgressMax))
+// 	{
+// 		lastProgress = (int)((double)ulProgress * 100.0 / (double)ulProgressMax);
+// 		((CMainFrame *)AfxGetMainWnd())->PostMessage(WM_MOVIE_DOWNLOAD_PROGRESS, threadId, lastProgress);
+// 	}
+// 	return S_OK;
+// }
+// 
+// HRESULT STDMETHODCALLTYPE CDownloadProgressCtrl::OnStopBinding(HRESULT hresult, __RPC__in_opt LPCWSTR szError)
+// {
+// 	UNREFERENCED_PARAMETER(hresult);
+// 	UNREFERENCED_PARAMETER(szError);
+// 	return E_NOTIMPL;
+// }
+// 
+// HRESULT STDMETHODCALLTYPE CDownloadProgressCtrl::GetBindInfo(DWORD *grfBINDF, BINDINFO *pbindinfo)
+// {
+// 	UNREFERENCED_PARAMETER(grfBINDF);
+// 	UNREFERENCED_PARAMETER(pbindinfo);
+// 	return E_NOTIMPL;
+// }
+// 
+// HRESULT STDMETHODCALLTYPE CDownloadProgressCtrl::OnDataAvailable(DWORD grfBSCF, DWORD dwSize, FORMATETC *pformatetc, STGMEDIUM *pstgmed)
+// {
+// 	UNREFERENCED_PARAMETER(grfBSCF);
+// 	UNREFERENCED_PARAMETER(dwSize);
+// 	UNREFERENCED_PARAMETER(pformatetc);
+// 	UNREFERENCED_PARAMETER(pstgmed);
+// 	return E_NOTIMPL;
+// }
+// 
+// HRESULT STDMETHODCALLTYPE CDownloadProgressCtrl::OnObjectAvailable(__RPC__in REFIID riid, __RPC__in_opt IUnknown *punk)
+// {
+// 	UNREFERENCED_PARAMETER(riid);
+// 	UNREFERENCED_PARAMETER(punk);
+// 	return E_NOTIMPL;
+// }
+// 
+// HRESULT STDMETHODCALLTYPE CDownloadProgressCtrl::QueryInterface(REFIID riid, void **ppvObject)
+// {
+// 	UNREFERENCED_PARAMETER(riid);
+// 	UNREFERENCED_PARAMETER(ppvObject);
+// 	return E_NOTIMPL;
+// }
+// 
+// ULONG STDMETHODCALLTYPE CDownloadProgressCtrl::AddRef(void)
+// {
+// 	return 0;
+// }
+// 
+// ULONG STDMETHODCALLTYPE CDownloadProgressCtrl::Release(void)
+// {
+// 	return 0;
+// }

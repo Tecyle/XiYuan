@@ -16,8 +16,9 @@
 #include "FileView.h"
 #include "ClassView.h"
 #include "XiYuanStatusBar.h"
+#include "DownloadManager.h"
 
-class CMainFrame : public CMDIFrameWndEx
+class CMainFrame : public CMDIFrameWndEx, public IDownloadProgress
 {
 	DECLARE_DYNAMIC(CMainFrame)
 public:
@@ -67,6 +68,34 @@ protected:
 	BOOL CreateDockingWindows();
 	void SetDockingWindowIcons(BOOL bHiColorIcons);
 	BOOL CreateCaptionBar();
-};
+public:
+	afx_msg void OnButtonHomepage();
+	afx_msg void OnButtonMovie();
+	afx_msg void OnButtonAnimation();
+	afx_msg void OnButtonTeleplay();
+	afx_msg void OnButtonScience();
+	afx_msg void OnButtonVariety();
+	afx_msg void OnButtonSport();
+	afx_msg void OnUpdateEditSearch(CCmdUI *pCmdUI);
+	
+	
+	CString m_search;
+	int lastProgress;
+	afx_msg void OnButtonSearch();
+	afx_msg void OnEditSearch();
+	afx_msg void OnButtonQrcode();
 
+	// IDownloadProgress
+public:
+	virtual void OnDownloadStart(DownloadTaskParams * params);
+	virtual void OnDownloadProgress(DownloadTaskParams * params);
+	virtual void OnDownloadError(DownloadTaskParams * params, HRESULT hr);
+	virtual void OnDownloadCompleted(DownloadTaskParams * params);
+
+public:
+	
+	afx_msg void OnButton10();
+};
+BYTE* GenerateBarCode(const char *_pStrInfo, int *_pWidth, int *_pHeight);
+bool SaveBmp(char*bmpName, unsigned char*imgBuf, int width, int height, int biBitCount, RGBQUAD *pColorTable);
 

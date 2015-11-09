@@ -14,7 +14,7 @@
 
 #pragma once
 #include "VodCtrl.h"
-
+#include "XiYuanDoc.h"
 
 class CXiYuanView : public CHtmlView
 {

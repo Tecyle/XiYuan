@@ -14,7 +14,7 @@ public:
 	void SetNavigateStatus(LPCTSTR status);
 	void SetNavigateProgress(BOOL visible, BOOL marquee, int progress);
 	void SetDownloadProgress(int progress);
-	void StartDownloadProgress();
+	void StartDownloadProgress(LPCTSTR taskName);
 	void EndDownloadProgress();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 };

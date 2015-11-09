@@ -66,6 +66,7 @@ CXiYuanApp::CXiYuanApp()
 
 CXiYuanApp theApp;
 CToast theToast;
+CDownloadManager theDownloadManager;
 // 生成的此标识符在统计上对于您的应用程序是唯一的
 // 如果您更愿选择一个特定的标识符，则可以更改它
 
@@ -137,6 +138,8 @@ BOOL CXiYuanApp::InitInstance()
 	ttParams.m_bVislManagerTheme = TRUE;
 	theApp.GetTooltipManager()->SetTooltipParams(AFX_TOOLTIP_TYPE_ALL,
 		RUNTIME_CLASS(CMFCToolTipCtrl), &ttParams);
+
+	theDownloadManager.LoadDownloadList();
 
 	// 注册应用程序的文档模板。  文档模板
 	// 将用作文档、框架窗口和视图之间的连接
@@ -211,6 +214,7 @@ BOOL CXiYuanApp::InitInstance()
 int CXiYuanApp::ExitInstance()
 {
 	//TODO:  处理可能已添加的附加资源
+	theDownloadManager.SaveDownloadList();
 	GdiplusShutdown(m_gdiplusToken);
 	AfxOleTerm(FALSE);
 
@@ -236,6 +240,8 @@ protected:
 // 实现
 protected:
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void OnEditSearch();
 };
 
 CAboutDlg::CAboutDlg() : CDialogEx(CAboutDlg::IDD)
@@ -248,6 +254,7 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
+	
 END_MESSAGE_MAP()
 
 // 用于运行对话框的应用程序命令
@@ -279,7 +286,8 @@ void CXiYuanApp::SaveCustomState()
 {
 }
 
-// CXiYuanApp 消息处理程序
+
+
 
 
 

@@ -65,7 +65,7 @@ void CToastDlg::DrawPromptMsg(Graphics * g, LPCTSTR msg)
 {
 	SolidBrush brush(Color(0, 0, 255));
 	FontFamily fontFamily(L"Î¢ÈíÑÅºÚ");
-	Gdiplus::Font font(&fontFamily, 0.2, FontStyleRegular, UnitInch);
+	Gdiplus::Font font(&fontFamily, 0.2f, FontStyleRegular, UnitInch);
 	PointF pointF(50, 220);
 	RectF layoutRect(30, 220, 700, 0);
 	RectF boundRect;

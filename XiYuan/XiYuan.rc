@@ -104,6 +104,9 @@ IDB_EXPLORER_24         BITMAP                  "res\\explorer_hc.bmp"
 IDR_MENU_IMAGES         BITMAP                  "res\\menuimages.bmp"
 IDB_MENU_IMAGES_24      BITMAP                  "res\\menuimages_hc.bmp"
 IDB_INFO                BITMAP                  "res\\info.bmp"
+IDB_XIYUAN_LIST_BK      BITMAP                  "res\\xiyuan_list_bk.bmp"
+IDB_XIYUAN_LIST_BK1     BITMAP                  "res\\xiyuan_list_bk1.bmp"
+IDB_XIYUAN_LIST_BK2     BITMAP                  "res\\xiyuan_list_bk2.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -375,6 +378,21 @@ FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
 END
 
+IDD_DOWN_MANAGER DIALOGEX 0, 0, 437, 314
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "确定",IDOK,325,293,50,14
+    PUSHBUTTON      "取消",IDCANCEL,380,293,50,14
+    LTEXT           "下载列表",IDC_STATIC,7,7,33,8
+    PUSHBUTTON      "Button1",IDC_BUTTON1,380,7,50,14
+    PUSHBUTTON      "Button2",IDC_BUTTON2,328,7,50,14
+    PUSHBUTTON      "Button3",IDC_BUTTON3,275,7,50,14
+    PUSHBUTTON      "Button4",IDC_BUTTON4,223,7,50,14
+    PUSHBUTTON      "Button5",IDC_BUTTON5,171,7,50,14
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -442,6 +460,14 @@ BEGIN
     IDD_TOAST_BACK_BOX, DIALOG
     BEGIN
         RIGHTMARGIN, 309
+    END
+
+    IDD_DOWN_MANAGER, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 430
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 307
     END
 END
 #endif    // APSTUDIO_INVOKED

@@ -14,9 +14,10 @@
 
 #include "stdafx.h"
 #include "XiYuan.h"
-
+#include "XiYuanView.h"
 #include "MainFrm.h"
-
+#include "Qrcode.h"
+#include "DownMgrDlg.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -36,6 +37,18 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWndEx)
 	ON_MESSAGE(WM_MOVIE_DOWNLOAD_PROGRESS, &CMainFrame::OnMovieDownloadProgress)
 	ON_MESSAGE(WM_MOVIE_DOWNLOAD_START, &CMainFrame::OnMovieDownloadStart)
 	ON_MESSAGE(WM_MOVIE_DOWNLOAD_END, &CMainFrame::OnMovieDownloadEnd)
+	ON_COMMAND(ID_BUTTON_HOMEPAGE, &CMainFrame::OnButtonHomepage)
+	ON_COMMAND(ID_BUTTON_MOVIE, &CMainFrame::OnButtonMovie)
+	ON_COMMAND(ID_BUTTON_ANIMATION, &CMainFrame::OnButtonAnimation)
+	ON_COMMAND(ID_BUTTON_TELEPLAY, &CMainFrame::OnButtonTeleplay)
+	ON_COMMAND(ID_BUTTON_SCIENCE, &CMainFrame::OnButtonScience)
+	ON_COMMAND(ID_BUTTON_VARIETY, &CMainFrame::OnButtonVariety)
+	ON_COMMAND(ID_BUTTON_SPORT, &CMainFrame::OnButtonSport)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_SEARCH, &CMainFrame::OnUpdateEditSearch)
+	ON_COMMAND(ID_BUTTON_SEARCH, &CMainFrame::OnButtonSearch)
+	ON_COMMAND(ID_EDIT_SEARCH, &CMainFrame::OnEditSearch)
+	ON_COMMAND(ID_BUTTON_QRCODE, &CMainFrame::OnButtonQrcode)
+	ON_COMMAND(ID_BUTTON10, &CMainFrame::OnButton10)
 END_MESSAGE_MAP()
 
 // CMainFrame 构造/析构
@@ -43,6 +56,7 @@ END_MESSAGE_MAP()
 CMainFrame::CMainFrame()
 {
 	// TODO:  在此添加成员初始化代码
+	m_search = "";
 	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_WINDOWS_7);
 }
 
@@ -120,6 +134,9 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// 将文档名和应用程序名称在窗口标题栏上的顺序进行交换。这
 	// 将改进任务栏的可用性，因为显示的文档名带有缩略图。
 	ModifyStyle(0, FWS_PREFIXTITLE);
+
+	// 注册下载消息回调
+	theDownloadManager.AddProgressCallback(this);
 
 	return 0;
 }
@@ -335,19 +352,518 @@ void CMainFrame::OnOptions()
 
 LRESULT CMainFrame::OnMovieDownloadProgress(WPARAM wParam, LPARAM lParam)
 {
-	m_wndStatusBar.SetDownloadProgress(lParam);
+	m_wndStatusBar.SetDownloadProgress(wParam);
 	return 0;
 }
 
 LRESULT CMainFrame::OnMovieDownloadStart(WPARAM wParam, LPARAM lParam)
 {
-	m_wndStatusBar.StartDownloadProgress();
+	DownloadTaskParams * params = (DownloadTaskParams *)lParam;
+	ASSERT(params);
+	m_wndStatusBar.StartDownloadProgress(params->dstFileName);
 	return 0;
 }
 
 LRESULT CMainFrame::OnMovieDownloadEnd(WPARAM wParam, LPARAM lParam)
 {
+	DownloadTaskParams * params = (DownloadTaskParams *)lParam;
+	ASSERT(params);
 	m_wndStatusBar.EndDownloadProgress();
 	return 0;
 }
 
+
+
+void CMainFrame::OnButtonHomepage()
+{
+	// TODO:  在此添加命令处理程序代码
+	CWinApp* pApp = AfxGetApp();
+
+	// Get the correct document template.
+	POSITION pos = pApp->GetFirstDocTemplatePosition();
+	CDocTemplate* pDocTemplate = pApp->GetNextDocTemplate(pos);
+	// Create a new frame.
+	
+	CFrameWnd* pFrame = pDocTemplate->CreateNewFrame(
+		pDocTemplate->CreateNewDocument(),
+		(CFrameWnd*)AfxGetMainWnd());
+	// Activate the frame.
+	pDocTemplate->InitialUpdateFrame(pFrame, NULL);
+	CXiYuanView* pView = (CXiYuanView*)pFrame->GetActiveView();
+
+	pView->Navigate2(_T("http://vod.cau.edu.cn/"), NULL, NULL);
+	
+	//CXiYuanView *pView = (CXiYuanView*)this->GetActiveView();
+	////assert(pView);
+	
+	//LPDISPATCH *ppDisp=NULL ;
+	//pView->SetRegisterAsBrowser(TRUE);
+	//*ppDisp = pView->GetApplication();
+	//BOOL cancel = false;
+	//pView->OnNewWindow2(ppDisp,&cancel);
+	//打开爱思主页新选项卡
+	// Get a pointer to the application object.
+	//CWinApp* pApp = AfxGetApp();
+	//
+	//// Get the correct document template.
+	//POSITION pos = pApp->GetFirstDocTemplatePosition();
+	//CDocTemplate* pDocTemplate = pApp->GetNextDocTemplate(pos);
+	//// Create a new frame.
+	//CFrameWnd* pFrame = pDocTemplate->CreateNewFrame(
+	//	pDocTemplate->CreateNewDocument(),
+	//	(CFrameWnd*)AfxGetMainWnd());
+	//// Activate the frame.
+	//pDocTemplate->InitialUpdateFrame(pFrame, NULL);
+	//CXiYuanView* pView = (CXiYuanView*)pFrame->GetActiveView();
+	//// Pass pointer of WebBrowser object.
+	//pView->SetRegisterAsBrowser(TRUE);
+	//LPDISPATCH ppDisp = pView->GetApplication();
+	//
+	////assert(ppDisp);
+	//BOOL Cancel = TRUE;
+	//pView->OnNewWindow2(&ppDisp,& Cancel);
+	
+	
+}
+
+
+void CMainFrame::OnButtonMovie()
+{
+	// TODO:  在此添加命令处理程序代码
+	CWinApp* pApp = AfxGetApp();
+
+	// Get the correct document template.
+	POSITION pos = pApp->GetFirstDocTemplatePosition();
+	CDocTemplate* pDocTemplate = pApp->GetNextDocTemplate(pos);
+	// Create a new frame.
+
+	CFrameWnd* pFrame = pDocTemplate->CreateNewFrame(
+		pDocTemplate->CreateNewDocument(),
+		(CFrameWnd*)AfxGetMainWnd());
+	// Activate the frame.
+	pDocTemplate->InitialUpdateFrame(pFrame, NULL);
+	CXiYuanView* pView = (CXiYuanView*)pFrame->GetActiveView();
+
+	pView->Navigate2(_T("http://vod.cau.edu.cn/index.php?mod=category&action=view&id=2"), NULL, NULL);
+}
+
+
+void CMainFrame::OnButtonAnimation()
+{
+	// TODO:  在此添加命令处理程序代码
+	CWinApp* pApp = AfxGetApp();
+
+	// Get the correct document template.
+	POSITION pos = pApp->GetFirstDocTemplatePosition();
+	CDocTemplate* pDocTemplate = pApp->GetNextDocTemplate(pos);
+	// Create a new frame.
+
+	CFrameWnd* pFrame = pDocTemplate->CreateNewFrame(
+		pDocTemplate->CreateNewDocument(),
+		(CFrameWnd*)AfxGetMainWnd());
+	// Activate the frame.
+	pDocTemplate->InitialUpdateFrame(pFrame, NULL);
+	CXiYuanView* pView = (CXiYuanView*)pFrame->GetActiveView();
+
+	pView->Navigate2(_T("http://vod.cau.edu.cn/index.php?mod=category&action=view&id=72"), NULL, NULL);
+}
+
+
+void CMainFrame::OnButtonTeleplay()
+{
+	// TODO:  在此添加命令处理程序代码
+	CWinApp* pApp = AfxGetApp();
+
+	// Get the correct document template.
+	POSITION pos = pApp->GetFirstDocTemplatePosition();
+	CDocTemplate* pDocTemplate = pApp->GetNextDocTemplate(pos);
+	// Create a new frame.
+
+	CFrameWnd* pFrame = pDocTemplate->CreateNewFrame(
+		pDocTemplate->CreateNewDocument(),
+		(CFrameWnd*)AfxGetMainWnd());
+	// Activate the frame.
+	pDocTemplate->InitialUpdateFrame(pFrame, NULL);
+	CXiYuanView* pView = (CXiYuanView*)pFrame->GetActiveView();
+
+	pView->Navigate2(_T("http://vod.cau.edu.cn/index.php?mod=category&action=view&id=12"), NULL, NULL);
+}
+
+
+void CMainFrame::OnButtonScience()
+{
+	// TODO:  在此添加命令处理程序代码
+	CWinApp* pApp = AfxGetApp();
+
+	// Get the correct document template.
+	POSITION pos = pApp->GetFirstDocTemplatePosition();
+	CDocTemplate* pDocTemplate = pApp->GetNextDocTemplate(pos);
+	// Create a new frame.
+
+	CFrameWnd* pFrame = pDocTemplate->CreateNewFrame(
+		pDocTemplate->CreateNewDocument(),
+		(CFrameWnd*)AfxGetMainWnd());
+	// Activate the frame.
+	pDocTemplate->InitialUpdateFrame(pFrame, NULL);
+	CXiYuanView* pView = (CXiYuanView*)pFrame->GetActiveView();
+
+	pView->Navigate2(_T("http://vod.cau.edu.cn/index.php?mod=category&action=view&id=127"), NULL, NULL);
+}
+
+
+void CMainFrame::OnButtonVariety()
+{
+	// TODO:  在此添加命令处理程序代码
+	CWinApp* pApp = AfxGetApp();
+
+	// Get the correct document template.
+	POSITION pos = pApp->GetFirstDocTemplatePosition();
+	CDocTemplate* pDocTemplate = pApp->GetNextDocTemplate(pos);
+	// Create a new frame.
+
+	CFrameWnd* pFrame = pDocTemplate->CreateNewFrame(
+		pDocTemplate->CreateNewDocument(),
+		(CFrameWnd*)AfxGetMainWnd());
+	// Activate the frame.
+	pDocTemplate->InitialUpdateFrame(pFrame, NULL);
+	CXiYuanView* pView = (CXiYuanView*)pFrame->GetActiveView();
+
+	pView->Navigate2(_T("http://vod.cau.edu.cn/index.php?mod=category&action=view&id=22"), NULL, NULL);
+}
+
+
+void CMainFrame::OnButtonSport()
+{
+	// TODO:  在此添加命令处理程序代码
+	CWinApp* pApp = AfxGetApp();
+
+	// Get the correct document template.
+	POSITION pos = pApp->GetFirstDocTemplatePosition();
+	CDocTemplate* pDocTemplate = pApp->GetNextDocTemplate(pos);
+	// Create a new frame.
+
+	CFrameWnd* pFrame = pDocTemplate->CreateNewFrame(
+		pDocTemplate->CreateNewDocument(),
+		(CFrameWnd*)AfxGetMainWnd());
+	// Activate the frame.
+	pDocTemplate->InitialUpdateFrame(pFrame, NULL);
+	CXiYuanView* pView = (CXiYuanView*)pFrame->GetActiveView();
+
+	pView->Navigate2(_T("http://vod.cau.edu.cn/index.php?mod=category&action=view&id=106"), NULL, NULL);
+}
+
+
+void CMainFrame::OnUpdateEditSearch(CCmdUI *pCmdUI)
+{
+	// TODO:  在此添加命令更新用户界面处理程序代码
+
+}
+
+
+
+
+void CMainFrame::OnButtonSearch()
+{
+	// TODO:  在此添加命令处理程序代码
+	
+	CString path;
+	path=L"http://vod.cau.edu.cn/index.php?type=title&keyword="+m_search+L"&mod=content&action=search";
+	// TODO:  在此添加命令处理程序代码
+	CWinApp* pApp = AfxGetApp();
+	// Get the correct document template.
+	POSITION pos = pApp->GetFirstDocTemplatePosition();
+	CDocTemplate* pDocTemplate = pApp->GetNextDocTemplate(pos);
+	// Create a new frame.
+	CFrameWnd* pFrame = pDocTemplate->CreateNewFrame(
+		pDocTemplate->CreateNewDocument(),
+		(CFrameWnd*)AfxGetMainWnd());
+	// Activate the frame.
+	pDocTemplate->InitialUpdateFrame(pFrame, NULL);
+	CXiYuanView* pView = (CXiYuanView*)pFrame->GetActiveView();
+	pView->Navigate2(path, NULL, NULL);
+
+
+}
+
+
+void CMainFrame::OnEditSearch()
+{
+	// TODO:  在此添加命令处理程序代码
+	
+	//获取edit控件指针
+	CMFCRibbonEdit *pEditTest=DYNAMIC_DOWNCAST(CMFCRibbonEdit, m_wndRibbonBar.FindByID(ID_EDIT_SEARCH));
+	m_search = pEditTest->GetEditText();
+	
+	
+}
+
+
+
+
+bool SaveBmp(char*bmpName, unsigned char*imgBuf, int width, int height, int biBitCount, RGBQUAD *pColorTable)
+{
+	//如果位图数据指针为0，则没有数据传入，函数返回
+
+	if (!imgBuf)
+		return false;
+
+	//颜色表大小，以字节为单位，灰度图像颜色表为1024字节，彩色图像颜色表大小为0
+
+	int colorTablesize = 0;
+
+	if (biBitCount == 8)
+		colorTablesize = 1024;
+
+	//待存储图像数据每行字节数为4的倍数
+
+	int lineByte = (width * biBitCount / 8 + 3) / 4 * 4;
+
+	//以二进制写的方式打开文件
+
+	FILE *fp = fopen(bmpName, "wb");
+
+	if (fp == 0)
+		return false;
+
+	//申请位图文件头结构变量，填写文件头信息
+
+	BITMAPFILEHEADER fileHead;
+
+	fileHead.bfType = 0x4D42;//bmp类型
+
+	//bfSize是图像文件4个组成部分之和
+
+	fileHead.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + colorTablesize + lineByte*height;
+
+	fileHead.bfReserved1 = 0;
+
+	fileHead.bfReserved2 = 0;
+
+	//bfOffBits是图像文件前3个部分所需空间之和
+
+	fileHead.bfOffBits = 54 + colorTablesize;
+
+	//写文件头进文件
+
+	fwrite(&fileHead, sizeof(BITMAPFILEHEADER), 1, fp);
+
+	//申请位图信息头结构变量，填写信息头信息
+
+	BITMAPINFOHEADER head;
+
+	head.biBitCount = biBitCount;
+
+	head.biClrImportant = 0;
+
+	head.biClrUsed = 0;
+
+	head.biCompression = 0;
+
+	head.biHeight = height;
+
+	head.biPlanes = 1;
+
+	head.biSize = 40;
+
+	head.biSizeImage = lineByte*height;
+
+	head.biWidth = width;
+
+	head.biXPelsPerMeter = 0;
+
+	head.biYPelsPerMeter = 0;
+
+	//写位图信息头进内存
+
+	fwrite(&head, sizeof(BITMAPINFOHEADER), 1, fp);
+
+	//如果灰度图像，有颜色表，写入文件 
+
+	if (biBitCount == 8)
+		fwrite(pColorTable, sizeof(RGBQUAD), 256, fp);
+
+	//写位图数据进文件
+
+	fwrite(imgBuf, height*lineByte, 1, fp);
+
+	//关闭文件
+
+	fclose(fp);
+
+	return true;
+
+}
+BYTE* GenerateBarCode(const char *_pStrInfo, int *_pWidth, int *_pHeight)
+{
+	if (NULL == _pStrInfo)
+	{
+		return NULL;
+	}
+
+	//Copy String
+	int		iLen = 0;
+	char	*_pStrCopy = NULL;
+
+	iLen = strlen(_pStrInfo) + 1;
+	if (iLen > 120)
+	{
+		return NULL;
+	}
+
+	if (NULL == (_pStrCopy = new char[iLen]))
+	{
+		return NULL;
+	}
+	strcpy(_pStrCopy, _pStrInfo);
+
+
+	//Qrcode
+	Qrcode _GenQrcode;
+	_GenQrcode.setQrcodeErrorCorrect('M');
+	_GenQrcode.setQrcodeEncodeMode('B');
+	_GenQrcode.setQrcodeVersion(7);
+
+	int iLRet = 0;//返回长度
+
+	bool** s = _GenQrcode.calQrcode(_pStrCopy, iLen, iLRet);
+
+
+	int nStartX = 4;
+	int nStartY = 4;
+	int nStopX = 4;
+	int nStopY = 4;
+	int nCodeSize = 4;
+
+	BYTE* pData = NULL;
+
+	int SizeX = ((nStartX + iLRet * nCodeSize + nStopX) * 32 + 31) / 32;
+	int SizeY = nStartY + iLRet * nCodeSize + nStopY;
+
+	int iLRetX = (SizeX - nStartX - nStopX) / nCodeSize;
+	int iLRetY = iLRet;
+
+	unsigned int nLineByte = SizeX * 4;
+	unsigned int nSize = nLineByte * SizeY;
+
+	if (NULL == (pData = new BYTE[nSize]))
+	{
+		if (NULL != _pStrCopy)
+		{
+			delete[] _pStrCopy;
+			_pStrCopy = NULL;
+		}
+
+		return NULL;
+	}
+
+	BYTE ColorWhite = 255;
+	BYTE ColorBlack = 0;
+	BYTE ColorAlpha = 255;
+	BYTE ColorValue = ColorBlack;
+
+	BYTE _R = 0;
+	BYTE _G = 1;
+	BYTE _B = 2;
+	BYTE _A = 3;
+
+	memset(pData, ColorWhite, nSize);
+
+	int i = 0;
+	int j = 0;
+	unsigned int Cur = 0;
+	int _nCodeSize = nCodeSize;
+	bool bBlack = false;
+
+	for (j = 0; j<iLRetY*nCodeSize; ++j)
+	{
+		for (i = 0; i<iLRetX; ++i)
+		{
+			bBlack = s[j / nCodeSize][i];
+			ColorValue = bBlack ? ColorBlack : ColorWhite;
+
+			Cur = (nStartY + j)*nLineByte + (nStartX + i*nCodeSize * 4);
+
+			_nCodeSize = 0;
+			while (_nCodeSize  < nCodeSize)
+			{
+				pData[Cur + _nCodeSize * nCodeSize + _R] = ColorValue;
+				pData[Cur + _nCodeSize * nCodeSize + _G] = ColorValue;
+				pData[Cur + _nCodeSize * nCodeSize + _B] = ColorValue;
+				pData[Cur + _nCodeSize * nCodeSize + _A] = ColorAlpha;
+				_nCodeSize++;
+			}
+		}
+	}
+
+	if (NULL != _pStrCopy)
+	{
+		delete[] _pStrCopy;
+		_pStrCopy = NULL;
+	}
+
+	*_pWidth = SizeX;
+	*_pHeight = SizeY;
+
+	return pData;
+}
+
+void CMainFrame::OnButtonQrcode()
+{
+	// TODO:  在此添加命令处理程序代码
+	//CString path = L"http://www.baidu.com";
+	CString path = L"调拨阿勒，我们可以用二维码聊天了";
+	
+
+	int W = 0;
+	int H = 0;
+	string s = UnicodeToAnsi(path);
+	BYTE *lpByte = NULL;
+
+	lpByte = GenerateBarCode(s.c_str(), &W, &H);
+
+	if (NULL == lpByte)
+	{
+		return;
+	}
+
+	SaveBmp("GY.bmp", lpByte, W, H, 32, NULL);
+	ShellExecute(NULL, L"Open", L"GY.bmp", NULL, NULL, SW_SHOW);
+	
+	delete[] lpByte;
+	lpByte = NULL;
+}
+
+void CMainFrame::OnDownloadStart(DownloadTaskParams * params)
+{
+	PostMessage(WM_MOVIE_DOWNLOAD_START, 0U, (LPARAM)params);
+	lastProgress = 0;
+}
+
+void CMainFrame::OnDownloadProgress(DownloadTaskParams * params)
+{
+	if (params->fileSize == 0)
+		return;
+	int progressPercent = (int)((double)params->fileDowned * 100.0 / (double)params->fileSize);
+	if (progressPercent > lastProgress)
+	{
+		PostMessage(WM_MOVIE_DOWNLOAD_PROGRESS, progressPercent, 0L);
+		lastProgress = progressPercent;
+	}
+}
+
+void CMainFrame::OnDownloadError(DownloadTaskParams * params, HRESULT hr)
+{
+	theToast.ShowToast(L"噶哦~好像下载过程中发生错误了诶~下载失败了~");
+}
+
+void CMainFrame::OnDownloadCompleted(DownloadTaskParams * params)
+{
+	PostMessage(WM_MOVIE_DOWNLOAD_END, 0U, (LPARAM)params);
+}
+
+
+void CMainFrame::OnButton10()
+{
+	CDownMgrDlg dlg;
+	dlg.DoModal();
+}

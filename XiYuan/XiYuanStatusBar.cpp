@@ -82,9 +82,13 @@ void CXiYuanStatusBar::OnTimer(UINT_PTR nIDEvent)
 	CMFCRibbonStatusBar::OnTimer(nIDEvent);
 }
 
-void CXiYuanStatusBar::StartDownloadProgress()
+void CXiYuanStatusBar::StartDownloadProgress(LPCTSTR taskName)
 {
+	CString caption = L"ÕıÔÚÏÂÔØ ";
+	caption += taskName;
+	caption += L" ...";
 	GetElement(3)->SetVisible(TRUE);
+	GetElement(3)->SetText(caption);
 	CMFCRibbonProgressBar * pProgress = (CMFCRibbonProgressBar *)GetElement(4);
 	pProgress->SetVisible(TRUE);
 	pProgress->SetRange(0, 100);

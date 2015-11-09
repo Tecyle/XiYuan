@@ -19,6 +19,7 @@
 
 #include "resource.h"       // Ö÷·ûºÅ
 #include "Toast.h"
+#include "DownloadManager.h"
 
 
 // CXiYuanApp:
@@ -52,3 +53,4 @@ public:
 
 extern CXiYuanApp theApp;
 extern CToast theToast;
+extern CDownloadManager theDownloadManager;

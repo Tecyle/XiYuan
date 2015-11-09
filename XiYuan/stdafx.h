@@ -70,8 +70,12 @@ CString AnsiToUnicode(string str);
 * 将宽字符字符串转换成多字节字符串
 */
 string UnicodeToAnsi(CString str);
+/**
+* 将多字节字符串转换成utf-8字符串  估计不好用 哈哈
+*/
+string string_To_UTF8(const std::string & str);
 
-
+CString GetFileSizeString(ULONG fSize);
 
 #ifdef _UNICODE
 #if defined _M_IX86

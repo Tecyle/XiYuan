@@ -87,8 +87,21 @@
 #define IDD_TOAST_BACK_BOX              314
 #define IDB_XIYUAN_BAR1                 315
 #define IDB_XIYUAN_BAR2                 316
+#define IDD_DOWN_MANAGER                317
+#define IDB_XIYUAN_LIST_BK              319
+#define IDB_XIYUAN_LIST_BK1             320
+#define IDB_BITMAP2                     321
+#define IDB_XIYUAN_LIST_BK2             321
+#define IDC_MFCVSLISTBOX2               1006
+#define IDC_LIST1                       1007
+#define IDC_BUTTON1                     1008
+#define IDC_BUTTON2                     1009
+#define IDC_BUTTON3                     1010
+#define IDC_BUTTON4                     1011
+#define IDC_BUTTON5                     1012
 #define ID_WRITE_PASTEASHYPERLINK       32770
 #define ID_BUTTON2                      32772
+#define ID_BUTTON_HOMEPAGE              32772
 #define ID_BUTTON3                      32773
 #define ID_BUTTON4                      32774
 #define ID_BUTTON5                      32775
@@ -116,14 +129,23 @@
 #define ID_BUTTON23                     32797
 #define ID_BUTTON24                     32798
 #define ID_BUTTON25                     32799
+#define ID_BUTTON_MOVIE                 32800
+#define ID_BUTTON_ANIMATION             32801
+#define ID_BUTTON_TELEPLAY              32802
+#define ID_BUTTON_SCIENCE               32803
+#define ID_BUTTON_VARIETY               32804
+#define ID_BUTTON_SPORT                 32805
+#define ID_BUTTON_SEARCH                32806
+#define ID_EDIT_SEARCH                  32807
+#define ID_BUTTON_QRCODE                32808
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        317
-#define _APS_NEXT_COMMAND_VALUE         32800
-#define _APS_NEXT_CONTROL_VALUE         1002
+#define _APS_NEXT_RESOURCE_VALUE        322
+#define _APS_NEXT_COMMAND_VALUE         32809
+#define _APS_NEXT_CONTROL_VALUE         1013
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif
